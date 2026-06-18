@@ -28,7 +28,7 @@ jobs:
         env:
           FORCE_RUN: ${{ github.event_name == 'workflow_dispatch' && '1' || '0' }}
           MAX_PRICE_SEK: "500"
-          EMAIL_TO: "bemilbandin@gmail.com"
+          EMAIL_TO: "beffhoe+idiotgpt@gmail.com"
           NTFY_TOPIC: "display-deals-55r0v7m6k2q8ps"
           TRADERA_APP_ID: ${{ secrets.TRADERA_APP_ID }}
           TRADERA_APP_KEY: ${{ secrets.TRADERA_APP_KEY }}
