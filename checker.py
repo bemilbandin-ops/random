@@ -15,9 +15,8 @@ TRADERA_APP_ID = os.getenv("TRADERA_APP_ID", "").strip()
 TRADERA_APP_KEY = os.getenv("TRADERA_APP_KEY", "").strip()
 FORCE_RUN = os.getenv("FORCE_RUN", "") == "1"
 STATE_PATH = Path("seen.json")
-RESULTS_PATH = Path("latest_results.json")
 QUERIES = ["datorskärm", "dataskärm", "bildskärm", "skärm", "pc skärm", "gaming skärm"]
-UA = {"User-Agent": "display-listing-checker/1.2"}
+UA = {"User-Agent": "display-listing-checker/1.3"}
 
 
 def log(message: str) -> None:
@@ -38,10 +37,14 @@ def load_seen() -> set[str]:
     return set()
 
 
-def save_seen(seen: set[str]) -> None:
+def save_state(seen: set[str], latest: dict) -> None:
     STATE_PATH.write_text(
         json.dumps(
-            {"updated_at": datetime.now(TZ).isoformat(timespec="seconds"), "seen": sorted(seen)},
+            {
+                "updated_at": datetime.now(TZ).isoformat(timespec="seconds"),
+                "seen": sorted(seen),
+                "latest_results": latest,
+            },
             ensure_ascii=False,
             indent=2,
         )
@@ -50,11 +53,11 @@ def save_seen(seen: set[str]) -> None:
     )
 
 
-def save_results(all_items: dict[str, dict], new_items: list[dict]) -> dict:
+def build_latest_payload(all_items: dict[str, dict], new_items: list[dict]) -> dict:
     checked_at = datetime.now(TZ).isoformat(timespec="seconds")
     new_ids = sorted(item["id"] for item in new_items)
     digest = hashlib.sha256((checked_at + "|" + "|".join(new_ids)).encode("utf-8")).hexdigest()[:16]
-    payload = {
+    return {
         "checked_at": checked_at,
         "notification_id": digest,
         "max_price_sek": MAX_PRICE,
@@ -62,8 +65,6 @@ def save_results(all_items: dict[str, dict], new_items: list[dict]) -> dict:
         "new_count": len(new_items),
         "items": new_items[:50],
     }
-    RESULTS_PATH.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    return payload
 
 
 def parse_money(value):
@@ -224,9 +225,9 @@ def main() -> None:
     new_items.sort(key=lambda item: (item["source"], item["price"], item["title"].lower()))
     for key in all_items:
         seen.add(key)
-    save_seen(seen)
-    payload = save_results(all_items, new_items)
-    log(f"Matches: {payload['total_count']} total, {payload['new_count']} new. Results written to latest_results.json")
+    latest = build_latest_payload(all_items, new_items)
+    save_state(seen, latest)
+    log(f"Matches: {latest['total_count']} total, {latest['new_count']} new. Latest results stored inside seen.json")
 
 
 if __name__ == "__main__":
