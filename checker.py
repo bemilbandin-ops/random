@@ -1,3 +1,4 @@
+import hashlib
 import json
 import os
 import re
@@ -10,14 +11,13 @@ import requests
 
 TZ = ZoneInfo("Europe/Stockholm")
 MAX_PRICE = int(os.getenv("MAX_PRICE_SEK", "500"))
-EMAIL_TO = os.getenv("ALERT_EMAIL", "").strip()
-NTFY_TOPIC = os.getenv("NTFY_TOPIC", "display-deals-55r0v7m6k2q8ps").strip() or "display-deals-55r0v7m6k2q8ps"
 TRADERA_APP_ID = os.getenv("TRADERA_APP_ID", "").strip()
 TRADERA_APP_KEY = os.getenv("TRADERA_APP_KEY", "").strip()
 FORCE_RUN = os.getenv("FORCE_RUN", "") == "1"
 STATE_PATH = Path("seen.json")
+RESULTS_PATH = Path("latest_results.json")
 QUERIES = ["datorskärm", "dataskärm", "bildskärm", "skärm", "pc skärm", "gaming skärm"]
-UA = {"User-Agent": "display-listing-checker/1.1"}
+UA = {"User-Agent": "display-listing-checker/1.2"}
 
 
 def log(message: str) -> None:
@@ -40,9 +40,30 @@ def load_seen() -> set[str]:
 
 def save_seen(seen: set[str]) -> None:
     STATE_PATH.write_text(
-        json.dumps({"updated_at": datetime.now(TZ).isoformat(timespec="seconds"), "seen": sorted(seen)}, ensure_ascii=False, indent=2) + "\n",
+        json.dumps(
+            {"updated_at": datetime.now(TZ).isoformat(timespec="seconds"), "seen": sorted(seen)},
+            ensure_ascii=False,
+            indent=2,
+        )
+        + "\n",
         encoding="utf-8",
     )
+
+
+def save_results(all_items: dict[str, dict], new_items: list[dict]) -> dict:
+    checked_at = datetime.now(TZ).isoformat(timespec="seconds")
+    new_ids = sorted(item["id"] for item in new_items)
+    digest = hashlib.sha256((checked_at + "|" + "|".join(new_ids)).encode("utf-8")).hexdigest()[:16]
+    payload = {
+        "checked_at": checked_at,
+        "notification_id": digest,
+        "max_price_sek": MAX_PRICE,
+        "total_count": len(all_items),
+        "new_count": len(new_items),
+        "items": new_items[:50],
+    }
+    RESULTS_PATH.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    return payload
 
 
 def parse_money(value):
@@ -190,44 +211,6 @@ def tradera_results() -> dict[str, dict]:
     return results
 
 
-def build_email_body(new_items: list[dict]) -> str:
-    shown = min(len(new_items), 8)
-    lines = [
-        f"{len(new_items)} new display listings under {MAX_PRICE} SEK.",
-        f"Showing first {shown}. The rest are marked seen so you do not get spammed forever.",
-        f"Checked: {datetime.now(TZ).strftime('%Y-%m-%d %H:%M %Z')}",
-        "",
-    ]
-    for index, item in enumerate(new_items[:shown], 1):
-        title = str(item['title'])[:120]
-        lines += [f"{index}. [{item['source']}] {title}", f"   {item['price']} SEK", f"   {item['url']}", ""]
-    body = "\n".join(lines)
-    encoded = body.encode("utf-8")
-    if len(encoded) > 3000:
-        body = encoded[:3000].decode("utf-8", errors="ignore") + "\n\n[truncated]"
-    return body
-
-
-def send_email(new_items: list[dict]) -> None:
-    if not EMAIL_TO:
-        log("ALERT_EMAIL is missing; not sending email.")
-        return
-    body = build_email_body(new_items)
-    try:
-        response = requests.post(
-            f"https://ntfy.sh/{NTFY_TOPIC}",
-            data=body.encode("utf-8"),
-            headers={**UA, "Title": f"{len(new_items)} new display listings", "Email": EMAIL_TO, "Priority": "default"},
-            timeout=25,
-        )
-        if response.status_code >= 400:
-            log(f"Email request failed but workflow will continue: HTTP {response.status_code}: {response.text[:500]}")
-            return
-        log("Email request accepted.")
-    except Exception as exc:
-        log(f"Email request failed but workflow will continue: {exc}")
-
-
 def main() -> None:
     now = datetime.now(TZ)
     if not FORCE_RUN and now.hour not in (9, 21):
@@ -238,13 +221,12 @@ def main() -> None:
     all_items.update(blocket_results())
     all_items.update(tradera_results())
     new_items = [item for key, item in all_items.items() if key not in seen]
+    new_items.sort(key=lambda item: (item["source"], item["price"], item["title"].lower()))
     for key in all_items:
         seen.add(key)
     save_seen(seen)
-    new_items.sort(key=lambda item: (item["source"], item["price"], item["title"].lower()))
-    log(f"Matches: {len(all_items)} total, {len(new_items)} new")
-    if new_items:
-        send_email(new_items)
+    payload = save_results(all_items, new_items)
+    log(f"Matches: {payload['total_count']} total, {payload['new_count']} new. Results written to latest_results.json")
 
 
 if __name__ == "__main__":
