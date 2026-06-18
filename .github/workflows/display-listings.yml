@@ -1,0 +1,153 @@
+name: Display listing checker
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 * * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: display-listing-checker
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install requests
+      - name: Check listings
+        env:
+          FORCE_RUN: ${{ github.event_name == 'workflow_dispatch' && '1' || '0' }}
+          MAX_PRICE_SEK: "500"
+          EMAIL_TO: "bemilbandin@gmail.com"
+          NTFY_TOPIC: "display-deals-55r0v7m6k2q8ps"
+          TRADERA_APP_ID: ${{ secrets.TRADERA_APP_ID }}
+          TRADERA_APP_KEY: ${{ secrets.TRADERA_APP_KEY }}
+        run: |
+          python - <<'PY'
+          import json, os, re, time
+          from datetime import datetime
+          from pathlib import Path
+          from zoneinfo import ZoneInfo
+          import requests
+          TZ=ZoneInfo('Europe/Stockholm'); MAX=int(os.getenv('MAX_PRICE_SEK','500')); EMAIL=os.getenv('EMAIL_TO',''); TOPIC=os.getenv('NTFY_TOPIC','display-deals-55r0v7m6k2q8ps'); APP_ID=os.getenv('TRADERA_APP_ID',''); APP_KEY=os.getenv('TRADERA_APP_KEY',''); FORCE=os.getenv('FORCE_RUN','')=='1'; STATE=Path('seen.json')
+          QUERIES=['datorskärm','dataskärm','bildskärm','skärm','pc skärm','gaming skärm']; UA={'User-Agent':'display-listing-checker/1.0'}
+          def log(s): print(f"[{datetime.now(TZ).isoformat(timespec='seconds')}] {s}", flush=True)
+          if not FORCE and datetime.now(TZ).hour not in (9,21): log('Not 09:00/21:00 Stockholm time; skipping.'); raise SystemExit(0)
+          def load_seen():
+            if not STATE.exists(): return set()
+            try:
+              d=json.loads(STATE.read_text()); return set(d.get('seen', d if isinstance(d,list) else []))
+            except Exception: return set()
+          def save_seen(s): STATE.write_text(json.dumps({'updated_at':datetime.now(TZ).isoformat(timespec='seconds'),'seen':sorted(s)}, ensure_ascii=False, indent=2)+'\n')
+          def money(v):
+            if v is None or isinstance(v,bool): return None
+            if isinstance(v,(int,float)): return int(v)
+            if isinstance(v,dict):
+              for k in ('amount','value','price','buyNowPrice','fixedPrice','salesPrice'):
+                x=money(v.get(k))
+                if x is not None: return x
+            if isinstance(v,str):
+              m=re.search(r'(\d[\d\s.,]*)',v)
+              if m:
+                s=re.sub(r'\D','',m.group(1)); return int(s) if s else None
+            return None
+          def flat(p):
+            if isinstance(p,list): return [x for x in p if isinstance(x,dict)]
+            if not isinstance(p,dict): return []
+            for k in ('docs','items','listings','results','searchResults','ads','data'):
+              v=p.get(k)
+              if isinstance(v,list): return [x for x in v if isinstance(x,dict)]
+              if isinstance(v,dict):
+                r=flat(v)
+                if r: return r
+            for v in p.values():
+              r=flat(v)
+              if r: return r
+            return []
+          def req(method,url,**kw):
+            try:
+              h={**UA,**kw.pop('headers',{})}; r=requests.request(method,url,headers=h,timeout=25,**kw)
+              if r.status_code>=400: log(f'{method} {url} HTTP {r.status_code}: {r.text[:160]}'); return None
+              return r.json()
+            except Exception as e: log(f'{method} {url} failed: {e}'); return None
+          def first(d,ks,default=''):
+            return next((d[k] for k in ks if isinstance(d,dict) and k in d and d[k] not in (None,'')), default)
+          def link(v,fallback):
+            if isinstance(v,str) and v.startswith('http'): return v
+            if isinstance(v,dict): return link(first(v,('url','href','canonicalUrl')),fallback)
+            return fallback
+          def blocket():
+            out={}
+            for q in QUERIES:
+              found=flat(req('GET','https://blocket-api.se/v1/search',params={'query':q,'sort_order':'PUBLISHED_DESC'})); log(f'Blocket {q!r}: {len(found)} raw')
+              for it in found[:25]:
+                iid=str(first(it,('id','ad_id','adId')))
+                if not iid: continue
+                d=req('GET','https://blocket-api.se/v1/ad/recommerce',params={'id':iid}) or {}
+                try: d=d['loaderData']['item-recommerce']['itemData']
+                except Exception: pass
+                m={**it,**(d if isinstance(d,dict) else {})}; price=money(first(m,('price','listPrice','priceAmount')))
+                if price is None or price>MAX: continue
+                title=str(first(m,('title','heading','subject','name'),'Blocket listing')); u=link(first(it,('canonical_url','canonicalUrl','url','shareUrl')),f'https://www.blocket.se/recommerce/forsale/item/{iid}')
+                out[f'blocket:{iid}']={'source':'Blocket','id':f'blocket:{iid}','title':title,'price':price,'url':u}
+              time.sleep(.3)
+            return out
+          def auction(it):
+            if any(it.get(k) is True for k in ('isAuction','auction','isBidding','hasBids')): return True
+            text=' '.join(str(it.get(k,'')).lower() for k in ('itemType','itemTypeName','listingType','sellingType','type','format','expoItemType'))
+            if any(x in text for x in ('auction','auktion','bidding')): return True
+            has_bid=any(it.get(k) is not None for k in ('currentBid','currentBidAmount','startPrice','minimumBid')); has_fix=any(it.get(k) is not None for k in ('buyNowPrice','buyItNowPrice','fixedPrice','price','salesPrice'))
+            return has_bid and not has_fix
+          def tradera():
+            out={}; h={'X-App-Id':APP_ID,'X-App-Key':APP_KEY,'Accept':'application/json','Content-Type':'application/json'}
+            if not APP_ID or not APP_KEY: log('Tradera secrets missing; skipping Tradera.'); return out
+            for q in QUERIES:
+              attempts=[lambda:req('GET','https://api.tradera.com/v4/search',headers=h,params={'query':q,'page':1,'pageSize':50}), lambda:req('GET','https://api.tradera.com/v4/search',headers=h,params={'q':q,'page':1,'pageSize':50}), lambda:req('POST','https://api.tradera.com/v4/search/advanced',headers=h,json={'query':q,'page':1,'pageSize':50,'maxPrice':MAX}), lambda:req('POST','https://api.tradera.com/v4/search/advanced',headers=h,json={'searchText':q,'page':1,'pageSize':50,'priceMax':MAX})]
+              found=[]
+              for a in attempts:
+                found=flat(a())
+                if found: break
+              log(f'Tradera {q!r}: {len(found)} raw')
+              for it in found[:50]:
+                if auction(it): continue
+                iid=str(first(it,('itemId','id','listingId','item_id','auctionId')))
+                if not iid: continue
+                price=None
+                for k in ('buyNowPrice','buyItNowPrice','fixedPrice','price','salesPrice','amount'):
+                  price=money(first(it,(k,)))
+                  if price is not None: break
+                if price is None or price>MAX: continue
+                title=str(first(it,('title','heading','name','shortDescription'),'Tradera listing')); u=link(first(it,('url','itemUrl','canonicalUrl','shareUrl')),f'https://www.tradera.com/item/{iid}')
+                out[f'tradera:{iid}']={'source':'Tradera','id':f'tradera:{iid}','title':title,'price':price,'url':u}
+              time.sleep(.5)
+            return out
+          seen=load_seen(); allitems={}; allitems.update(blocket()); allitems.update(tradera()); new=[x for k,x in allitems.items() if k not in seen]
+          for k in allitems: seen.add(k)
+          save_seen(seen); log(f'Matches: {len(allitems)} total, {len(new)} new')
+          if new:
+            new.sort(key=lambda x:(x['source'],x['price'],x['title'].lower())); body=[f'New display listings under {MAX} SEK',f"Checked: {datetime.now(TZ).strftime('%Y-%m-%d %H:%M %Z')}",'']
+            for i,x in enumerate(new[:30],1): body += [f"{i}. [{x['source']}] {x['title']}",f"   {x['price']} SEK",f"   {x['url']}",'']
+            r=requests.post(f'https://ntfy.sh/{TOPIC}',data='\n'.join(body).encode(),headers={**UA,'Title':f'{len(new)} new display listings','Email':EMAIL,'Priority':'default'},timeout=25); r.raise_for_status(); log(f'Email sent to {EMAIL}')
+          PY
+      - name: Commit seen-state changes
+        run: |
+          if [ -n "$(git status --porcelain seen.json)" ]; then
+            git config user.name "github-actions"
+            git config user.email "github-actions@github.com"
+            git add seen.json
+            git commit -m "Update seen display listings"
+            git pull --rebase
+            git push
+          else
+            echo "seen.json unchanged"
+          fi
