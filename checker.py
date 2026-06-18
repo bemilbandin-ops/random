@@ -17,7 +17,7 @@ TRADERA_APP_KEY = os.getenv("TRADERA_APP_KEY", "").strip()
 FORCE_RUN = os.getenv("FORCE_RUN", "") == "1"
 STATE_PATH = Path("seen.json")
 QUERIES = ["datorskärm", "dataskärm", "bildskärm", "skärm", "pc skärm", "gaming skärm"]
-UA = {"User-Agent": "display-listing-checker/1.0"}
+UA = {"User-Agent": "display-listing-checker/1.1"}
 
 
 def log(message: str) -> None:
@@ -88,7 +88,7 @@ def request_json(method: str, url: str, **kwargs):
         headers = {**UA, **kwargs.pop("headers", {})}
         response = requests.request(method, url, headers=headers, timeout=25, **kwargs)
         if response.status_code >= 400:
-            log(f"{method} {url} HTTP {response.status_code}: {response.text[:200]}")
+            log(f"{method} {url} HTTP {response.status_code}: {response.text[:300]}")
             return None
         return response.json()
     except Exception as exc:
@@ -190,21 +190,42 @@ def tradera_results() -> dict[str, dict]:
     return results
 
 
+def build_email_body(new_items: list[dict]) -> str:
+    shown = min(len(new_items), 8)
+    lines = [
+        f"{len(new_items)} new display listings under {MAX_PRICE} SEK.",
+        f"Showing first {shown}. The rest are marked seen so you do not get spammed forever.",
+        f"Checked: {datetime.now(TZ).strftime('%Y-%m-%d %H:%M %Z')}",
+        "",
+    ]
+    for index, item in enumerate(new_items[:shown], 1):
+        title = str(item['title'])[:120]
+        lines += [f"{index}. [{item['source']}] {title}", f"   {item['price']} SEK", f"   {item['url']}", ""]
+    body = "\n".join(lines)
+    encoded = body.encode("utf-8")
+    if len(encoded) > 3000:
+        body = encoded[:3000].decode("utf-8", errors="ignore") + "\n\n[truncated]"
+    return body
+
+
 def send_email(new_items: list[dict]) -> None:
     if not EMAIL_TO:
         log("ALERT_EMAIL is missing; not sending email.")
         return
-    body = [f"New display listings under {MAX_PRICE} SEK", f"Checked: {datetime.now(TZ).strftime('%Y-%m-%d %H:%M %Z')}", ""]
-    for index, item in enumerate(new_items[:30], 1):
-        body += [f"{index}. [{item['source']}] {item['title']}", f"   {item['price']} SEK", f"   {item['url']}", ""]
-    response = requests.post(
-        f"https://ntfy.sh/{NTFY_TOPIC}",
-        data="\n".join(body).encode("utf-8"),
-        headers={**UA, "Title": f"{len(new_items)} new display listings", "Email": EMAIL_TO, "Priority": "default"},
-        timeout=25,
-    )
-    response.raise_for_status()
-    log("Email sent.")
+    body = build_email_body(new_items)
+    try:
+        response = requests.post(
+            f"https://ntfy.sh/{NTFY_TOPIC}",
+            data=body.encode("utf-8"),
+            headers={**UA, "Title": f"{len(new_items)} new display listings", "Email": EMAIL_TO, "Priority": "default"},
+            timeout=25,
+        )
+        if response.status_code >= 400:
+            log(f"Email request failed but workflow will continue: HTTP {response.status_code}: {response.text[:500]}")
+            return
+        log("Email request accepted.")
+    except Exception as exc:
+        log(f"Email request failed but workflow will continue: {exc}")
 
 
 def main() -> None:
