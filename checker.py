@@ -19,7 +19,7 @@ TRADERA_APP_KEY = os.getenv("TRADERA_APP_KEY", "").strip()
 FORCE_RUN = os.getenv("FORCE_RUN", "") == "1"
 STATE_PATH = Path("seen.json")
 QUERIES = ["datorskärm", "dataskärm", "bildskärm", "skärm", "pc skärm", "gaming skärm"]
-UA = {"User-Agent": "display-listing-checker/1.4"}
+UA = {"User-Agent": "display-listing-checker/1.6"}
 
 
 def log(message: str) -> None:
