@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-06-19T13:34:45+02:00",
+  "updated_at": "2026-06-19T13:39:51+02:00",
   "seen": [
     "blocket:17784941",
     "blocket:18086299",
@@ -122,25 +122,39 @@
     "tradera:736941310"
   ],
   "latest_results": {
-    "checked_at": "2026-06-19T13:34:45+02:00",
-    "notification_id": "4cf4e6347c492bfa",
+    "checked_at": "2026-06-19T13:39:51+02:00",
+    "notification_id": "4723b470ddae0b51",
     "max_price_sek": 500,
     "total_count": 7,
-    "new_count": 7,
+    "new_count": 0,
     "items": [
-      {
-        "source": "Tradera",
-        "id": "tradera:299582191",
-        "title": "Skärm Toshiba LTD141ECEF / CP241834-01 LCD/TFT 14,1\" XGA",
-        "price": 125,
-        "url": "http://www.tradera.com/item/301824/299582191/skarm-toshiba-ltd141ecef-cp241834-01-lcd-tft-14-1-xga"
-      },
       {
         "source": "Tradera",
         "id": "tradera:299581091",
         "title": "Skärm Hitachi TX34D62VC1CAC LCD/TFT 13.3\" XGA",
         "price": 350,
         "url": "http://www.tradera.com/item/301824/299581091/skarm-hitachi-tx34d62vc1cac-lcd-tft-13-3-xga"
+      },
+      {
+        "source": "Tradera",
+        "id": "tradera:299581043",
+        "title": "Skärm Hitachi TX36D81VC1CAA / CP021210-02 LCD/TFT 14,1\" XGA",
+        "price": 450,
+        "url": "http://www.tradera.com/item/301824/299581043/skarm-hitachi-tx36d81vc1caa-cp021210-02-lcd-tft-14-1-xga"
+      },
+      {
+        "source": "Tradera",
+        "id": "tradera:299581342",
+        "title": "Skärm IBM ITXG06 / 47L7400 LCD/TFT 14,1\" XGA",
+        "price": 450,
+        "url": "http://www.tradera.com/item/301824/299581342/skarm-ibm-itxg06-47l7400-lcd-tft-14-1-xga"
+      },
+      {
+        "source": "Tradera",
+        "id": "tradera:299581375",
+        "title": "Skärm IBM 73H8200 SVGA 12,1\"",
+        "price": 425,
+        "url": "http://www.tradera.com/item/301824/299581375/skarm-ibm-73h8200-svga-12-1-"
       },
       {
         "source": "Tradera",
@@ -158,24 +172,10 @@
       },
       {
         "source": "Tradera",
-        "id": "tradera:299581375",
-        "title": "Skärm IBM 73H8200 SVGA 12,1\"",
-        "price": 425,
-        "url": "http://www.tradera.com/item/301824/299581375/skarm-ibm-73h8200-svga-12-1-"
-      },
-      {
-        "source": "Tradera",
-        "id": "tradera:299581043",
-        "title": "Skärm Hitachi TX36D81VC1CAA / CP021210-02 LCD/TFT 14,1\" XGA",
-        "price": 450,
-        "url": "http://www.tradera.com/item/301824/299581043/skarm-hitachi-tx36d81vc1caa-cp021210-02-lcd-tft-14-1-xga"
-      },
-      {
-        "source": "Tradera",
-        "id": "tradera:299581342",
-        "title": "Skärm IBM ITXG06 / 47L7400 LCD/TFT 14,1\" XGA",
-        "price": 450,
-        "url": "http://www.tradera.com/item/301824/299581342/skarm-ibm-itxg06-47l7400-lcd-tft-14-1-xga"
+        "id": "tradera:299582191",
+        "title": "Skärm Toshiba LTD141ECEF / CP241834-01 LCD/TFT 14,1\" XGA",
+        "price": 125,
+        "url": "http://www.tradera.com/item/301824/299582191/skarm-toshiba-ltd141ecef-cp241834-01-lcd-tft-14-1-xga"
       }
     ]
   }
