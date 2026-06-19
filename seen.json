@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-06-19T13:23:07+02:00",
+  "updated_at": "2026-06-19T13:27:00+02:00",
   "seen": [
     "blocket:17784941",
     "blocket:18086299",
@@ -9,6 +9,7 @@
     "blocket:20535269",
     "blocket:20750578",
     "blocket:20787385",
+    "blocket:22392455",
     "blocket:22522983",
     "blocket:22538906",
     "blocket:23133200",
@@ -53,6 +54,7 @@
     "tradera:629312462",
     "tradera:641348686",
     "tradera:647604959",
+    "tradera:654873982",
     "tradera:656938418",
     "tradera:657507658",
     "tradera:701829216",
@@ -61,6 +63,7 @@
     "tradera:710673264",
     "tradera:714612672",
     "tradera:718534892",
+    "tradera:720262282",
     "tradera:727941001",
     "tradera:728563525",
     "tradera:728668398",
@@ -77,6 +80,7 @@
     "tradera:731340402",
     "tradera:731355090",
     "tradera:731355539",
+    "tradera:731367343",
     "tradera:731607309",
     "tradera:731922427",
     "tradera:731942118",
@@ -111,39 +115,39 @@
     "tradera:736941310"
   ],
   "latest_results": {
-    "checked_at": "2026-06-19T13:23:07+02:00",
-    "notification_id": "0154e0b7f3fac44b",
+    "checked_at": "2026-06-19T13:27:00+02:00",
+    "notification_id": "4842468004e96088",
     "max_price_sek": 500,
-    "total_count": 106,
+    "total_count": 40,
     "new_count": 4,
     "items": [
       {
-        "source": "Tradera",
-        "id": "tradera:735274130",
-        "title": "skärmskydd / screen protection",
-        "price": 30,
-        "url": "http://www.tradera.com/item/340821/735274130/skarmskydd-screen-protection"
+        "source": "Blocket",
+        "id": "blocket:22392455",
+        "title": "Monitor Robotic arbetsskor skyddsskor svart herr",
+        "price": 500,
+        "url": "https://www.blocket.se/recommerce/forsale/item/22392455"
       },
       {
         "source": "Tradera",
-        "id": "tradera:733658466",
-        "title": "Ljudabsorbent / bordsskärm",
-        "price": 150,
-        "url": "http://www.tradera.com/item/160407/733658466/ljudabsorbent-bordsskarm"
+        "id": "tradera:720262282",
+        "title": "JOHN ERICSSONS MONITOR OCH DRABBNINGEN PÅ HAMPTON ROADS Hugo Hammar",
+        "price": 160,
+        "url": "http://www.tradera.com/item/341201/720262282/john-ericssons-monitor-och-drabbningen-pa-hampton-roads-hugo-hammar"
       },
       {
         "source": "Tradera",
-        "id": "tradera:728743990",
-        "title": "Skärmfäste för skrivbord",
-        "price": 200,
-        "url": "http://www.tradera.com/item/1000274/728743990/skarmfaste-for-skrivbord"
+        "id": "tradera:654873982",
+        "title": "MONITOR LIZARDS AS PETS Marvin Murkett and Ben Team 2015",
+        "price": 170,
+        "url": "http://www.tradera.com/item/111505/654873982/monitor-lizards-as-pets-marvin-murkett-and-ben-team-2015"
       },
       {
         "source": "Tradera",
-        "id": "tradera:733953101",
-        "title": "5 datorskärmar 22tums endast VGA ej Hdmi",
-        "price": 350,
-        "url": "http://www.tradera.com/item/301824/733953101/5-datorskarmar-22tums-endast-vga-ej-hdmi"
+        "id": "tradera:731367343",
+        "title": "Shinco SDP-1250 Portable DVD Player with 10.2\" TFT Monitor-circa 00s-2.615 Kg",
+        "price": 399,
+        "url": "http://www.tradera.com/item/170201/731367343/shinco-sdp-1250-portable-dvd-player-with-10-2-tft-monitor-circa-00s-2-615-kg"
       }
     ]
   }
