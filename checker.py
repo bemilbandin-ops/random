@@ -19,7 +19,7 @@ TRADERA_APP_KEY = os.getenv("TRADERA_APP_KEY", "").strip()
 TRADERA_CATEGORY_ID = os.getenv("TRADERA_CATEGORY_ID", "301824").strip()
 FORCE_RUN = os.getenv("FORCE_RUN", "") == "1"
 STATE_PATH = Path("seen.json")
-UA = {"User-Agent": "display-listing-checker/2.1"}
+UA = {"User-Agent": "display-listing-checker/2.2"}
 
 BLOCKET_CATEGORY = os.getenv("BLOCKET_CATEGORY", "datorskärm").strip()
 CATEGORY_TERMS = ["datorskärm", "datorskärmar", "dataskärm", "dataskärmar", "bildskärm", "bildskärmar"]
@@ -150,7 +150,7 @@ def build_latest_payload(all_items: dict[str, dict], new_items: list[dict]) -> d
     checked_at = datetime.now(TZ).isoformat(timespec="seconds")
     new_ids = sorted(item["id"] for item in new_items)
     digest = hashlib.sha256((checked_at + "|" + "|".join(new_ids)).encode("utf-8")).hexdigest()[:16]
-    return {"checked_at": checked_at, "notification_id": digest, "max_price_sek": MAX_PRICE, "total_count": len(all_items), "new_count": len(new_items), "items": new_items}
+    return {"checked_at": checked_at, "notification_id": digest, "max_price_sek": MAX_PRICE, "total_count": len(all_items), "new_count": len(new_items), "items": list(all_items.values())}
 
 
 def blocket_results() -> dict[str, dict]:
@@ -159,7 +159,6 @@ def blocket_results() -> dict[str, dict]:
     found = flatten_items(raw)
     log(f"Blocket category {BLOCKET_CATEGORY!r}: {len(found)} raw")
     rejected_category = 0
-
     for item in found[:100]:
         item_id = str(first(item, ("id", "ad_id", "adId")))
         if not item_id:
@@ -180,7 +179,6 @@ def blocket_results() -> dict[str, dict]:
         url = link_from(first(item, ("canonical_url", "canonicalUrl", "url", "shareUrl")), f"https://www.blocket.se/recommerce/forsale/item/{item_id}")
         results[f"blocket:{item_id}"] = {"source": "Blocket", "id": f"blocket:{item_id}", "title": title, "price": price, "url": url}
         time.sleep(0.2)
-
     log(f"Blocket rejected because category was not datorskärm/bildskärm: {rejected_category}")
     return results
 
@@ -212,7 +210,6 @@ def tradera_results() -> dict[str, dict]:
     if not TRADERA_APP_ID or not TRADERA_APP_KEY:
         log("Tradera skipped: credentials missing.")
         return results
-
     headers = {"X-App-Id": TRADERA_APP_ID, "X-App-Key": TRADERA_APP_KEY, "Accept": "application/json", "Content-Type": "application/json"}
     attempts = [
         lambda: request_json("GET", "https://api.tradera.com/v4/search", headers=headers, params={"categoryId": TRADERA_CATEGORY_ID, "page": 1, "pageSize": 100}),
@@ -220,14 +217,12 @@ def tradera_results() -> dict[str, dict]:
         lambda: request_json("POST", "https://api.tradera.com/v4/search/advanced", headers=headers, json={"categoryId": int(TRADERA_CATEGORY_ID), "page": 1, "pageSize": 100, "maxPrice": MAX_PRICE}),
         lambda: request_json("POST", "https://api.tradera.com/v4/search/advanced", headers=headers, json={"categoryIds": [int(TRADERA_CATEGORY_ID)], "page": 1, "pageSize": 100, "maxPrice": MAX_PRICE}),
     ]
-
     found = []
     for attempt in attempts:
         found = flatten_items(attempt())
         if found:
             break
     log(f"Tradera category {TRADERA_CATEGORY_ID}: {len(found)} raw")
-
     for item in found[:100]:
         if is_tradera_auction(item):
             continue
@@ -240,23 +235,41 @@ def tradera_results() -> dict[str, dict]:
         title = str(first(item, ("title", "heading", "name", "shortDescription"), "Tradera listing"))
         url = link_from(first(item, ("url", "itemUrl", "canonicalUrl", "shareUrl")), f"https://www.tradera.com/item/{item_id}")
         results[f"tradera:{item_id}"] = {"source": "Tradera", "id": f"tradera:{item_id}", "title": title, "price": price, "url": url}
-
     return results
 
 
-def build_email_body(new_items: list[dict]) -> str:
-    lines = [f"{len(new_items)} new category-filtered listings under {MAX_PRICE} SEK.", "Showing all category-filtered matches.", f"Checked: {datetime.now(TZ).strftime('%Y-%m-%d %H:%M %Z')}", ""]
-    for index, item in enumerate(new_items, 1):
-        title = str(item["title"])[:140]
-        lines += [f"{index}. [{item['source']}] {title}", f"   {item['price']} SEK", f"   {item['url']}", ""]
+def build_email_body(current_items: list[dict], new_ids: set[str]) -> str:
+    blocket = [item for item in current_items if item["source"] == "Blocket"]
+    tradera = [item for item in current_items if item["source"] == "Tradera"]
+    lines = [
+        f"{len(current_items)} current category listings under {MAX_PRICE} SEK.",
+        f"New since last run: {len(new_ids)}.",
+        f"Blocket: {len(blocket)} current. Tradera: {len(tradera)} current.",
+        f"Checked: {datetime.now(TZ).strftime('%Y-%m-%d %H:%M %Z')}",
+        "",
+    ]
+    for source_name, items in (("Blocket", blocket), ("Tradera", tradera)):
+        lines.append(f"== {source_name} ==")
+        if not items:
+            lines += ["0 current matches", ""]
+            continue
+        for index, item in enumerate(items, 1):
+            marker = "NEW " if item["id"] in new_ids else ""
+            title = str(item["title"])[:140]
+            lines += [f"{index}. {marker}{title}", f"   {item['price']} SEK", f"   {item['url']}", ""]
     return "\n".join(lines)
 
 
-def send_email(new_items: list[dict]) -> None:
+def send_email(current_items: list[dict], new_ids: set[str]) -> None:
     if not NTFY_TOKEN:
         log("NTFY_TOKEN missing; cannot send email.")
         return
-    response = requests.post(f"https://ntfy.sh/{NTFY_TOPIC}", data=build_email_body(new_items).encode("utf-8"), headers={**UA, "Authorization": f"Bearer {NTFY_TOKEN}", "Title": f"{len(new_items)} category listings", "Email": EMAIL_TO, "Priority": "default"}, timeout=25)
+    response = requests.post(
+        f"https://ntfy.sh/{NTFY_TOPIC}",
+        data=build_email_body(current_items, new_ids).encode("utf-8"),
+        headers={**UA, "Authorization": f"Bearer {NTFY_TOKEN}", "Title": f"{len(current_items)} current monitor listings", "Email": EMAIL_TO, "Priority": "default"},
+        timeout=25,
+    )
     if response.status_code >= 400:
         raise RuntimeError(f"ntfy email failed HTTP {response.status_code}: {response.text[:500]}")
     log("Email request accepted by ntfy.")
@@ -271,15 +284,15 @@ def main() -> None:
     all_items = {}
     all_items.update(blocket_results())
     all_items.update(tradera_results())
-    new_items = [item for key, item in all_items.items() if key not in seen]
-    new_items.sort(key=lambda item: (item["source"], item["price"], item["title"].lower()))
+    current_items = sorted(all_items.values(), key=lambda item: (item["source"], item["price"], item["title"].lower()))
+    new_ids = {key for key in all_items if key not in seen}
     for key in all_items:
         seen.add(key)
-    latest = build_latest_payload(all_items, new_items)
+    latest = build_latest_payload(all_items, [item for item in current_items if item["id"] in new_ids])
     save_state(seen, latest)
-    log(f"Category-filtered matches: {latest['total_count']} total, {latest['new_count']} new")
-    if new_items:
-        send_email(new_items)
+    log(f"Current matches: {len(current_items)} total, {len(new_ids)} new")
+    if current_items and (new_ids or FORCE_RUN):
+        send_email(current_items, new_ids)
 
 
 if __name__ == "__main__":
