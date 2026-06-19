@@ -18,12 +18,37 @@ TRADERA_APP_ID = os.getenv("TRADERA_APP_ID", "").strip()
 TRADERA_APP_KEY = os.getenv("TRADERA_APP_KEY", "").strip()
 FORCE_RUN = os.getenv("FORCE_RUN", "") == "1"
 STATE_PATH = Path("seen.json")
-QUERIES = ["datorskärm", "dataskärm", "bildskärm", "skärm", "pc skärm", "gaming skärm"]
-UA = {"User-Agent": "display-listing-checker/1.6"}
+
+# Keep searches monitor-focused. The old bare "skärm" query matched lampshades, desks, mounts, and adapters.
+QUERIES = ["datorskärm", "dataskärm", "bildskärm", "pc skärm", "gaming skärm", "monitor"]
+UA = {"User-Agent": "display-listing-checker/1.7"}
+
+REJECT_TERMS = [
+    "lampskärm", "tygskärm", "skärmlampa", "lampa", "golvlampa", "skrivbord", "bord", "hylla", "väggfäste", "fäste",
+    "stativ", "arm", "adapter", "adaptor", "converter", "konverter", "kabel", "displayport kabel", "hdmi till", "vga till",
+    "skärmskydd", "iphone", "ipad", "mobil", "telefon", "reservdel", "tv", "television", "projektor", "filmduk", "gardin",
+]
+DIRECT_MONITOR_TERMS = ["datorskärm", "dataskärm", "bildskärm", "pc-skärm", "pc skärm", "monitor"]
+MONITOR_CONTEXT_TERMS = [
+    "dator", "data", "pc", "gaming", "lenovo", "dell", "hp", "samsung", "asus", "acer", "benq", "aoc", "philips",
+    "lg", "viewsonic", "eizo", "msi", "24", "27", "32", "34", "tum", "hz", "ips", "led", "lcd", "1080p",
+    "1440p", "4k", "fhd", "qhd", "uhd",
+]
 
 
 def log(message: str) -> None:
     print(f"[{datetime.now(TZ).isoformat(timespec='seconds')}] {message}", flush=True)
+
+
+def looks_like_computer_monitor(title: str) -> bool:
+    text = title.lower()
+    if any(term in text for term in REJECT_TERMS):
+        return False
+    if any(term in text for term in DIRECT_MONITOR_TERMS):
+        return True
+    if "skärm" in text or "display" in text:
+        return any(term in text for term in MONITOR_CONTEXT_TERMS)
+    return False
 
 
 def load_seen() -> set[str]:
@@ -41,14 +66,29 @@ def load_seen() -> set[str]:
 
 
 def save_state(seen: set[str], latest: dict) -> None:
-    STATE_PATH.write_text(json.dumps({"updated_at": datetime.now(TZ).isoformat(timespec="seconds"), "seen": sorted(seen), "latest_results": latest}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    STATE_PATH.write_text(
+        json.dumps(
+            {"updated_at": datetime.now(TZ).isoformat(timespec="seconds"), "seen": sorted(seen), "latest_results": latest},
+            ensure_ascii=False,
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
 
 
 def build_latest_payload(all_items: dict[str, dict], new_items: list[dict]) -> dict:
     checked_at = datetime.now(TZ).isoformat(timespec="seconds")
     new_ids = sorted(item["id"] for item in new_items)
     digest = hashlib.sha256((checked_at + "|" + "|".join(new_ids)).encode("utf-8")).hexdigest()[:16]
-    return {"checked_at": checked_at, "notification_id": digest, "max_price_sek": MAX_PRICE, "total_count": len(all_items), "new_count": len(new_items), "items": new_items[:50]}
+    return {
+        "checked_at": checked_at,
+        "notification_id": digest,
+        "max_price_sek": MAX_PRICE,
+        "total_count": len(all_items),
+        "new_count": len(new_items),
+        "items": new_items,
+    }
 
 
 def parse_money(value):
@@ -122,6 +162,7 @@ def link_from(value, fallback: str) -> str:
 
 def blocket_results() -> dict[str, dict]:
     results = {}
+    rejected = 0
     for query in QUERIES:
         raw = request_json("GET", "https://blocket-api.se/v1/search", params={"query": query, "sort_order": "PUBLISHED_DESC"})
         found = flatten_items(raw)
@@ -136,13 +177,17 @@ def blocket_results() -> dict[str, dict]:
             except Exception:
                 pass
             merged = {**item, **(details if isinstance(details, dict) else {})}
+            title = str(first(merged, ("title", "heading", "subject", "name"), "Blocket listing"))
+            if not looks_like_computer_monitor(title):
+                rejected += 1
+                continue
             price = parse_money(first(merged, ("price", "listPrice", "priceAmount")))
             if price is None or price > MAX_PRICE:
                 continue
-            title = str(first(merged, ("title", "heading", "subject", "name"), "Blocket listing"))
             url = link_from(first(item, ("canonical_url", "canonicalUrl", "url", "shareUrl")), f"https://www.blocket.se/recommerce/forsale/item/{item_id}")
             results[f"blocket:{item_id}"] = {"source": "Blocket", "id": f"blocket:{item_id}", "title": title, "price": price, "url": url}
         time.sleep(0.3)
+    log(f"Blocket rejected as non-monitor: {rejected}")
     return results
 
 
@@ -159,6 +204,7 @@ def is_tradera_auction(item: dict) -> bool:
 
 def tradera_results() -> dict[str, dict]:
     results = {}
+    rejected = 0
     if not TRADERA_APP_ID or not TRADERA_APP_KEY:
         log("Tradera credentials missing; skipping Tradera.")
         return results
@@ -182,6 +228,10 @@ def tradera_results() -> dict[str, dict]:
             item_id = str(first(item, ("itemId", "id", "listingId", "item_id", "auctionId")))
             if not item_id:
                 continue
+            title = str(first(item, ("title", "heading", "name", "shortDescription"), "Tradera listing"))
+            if not looks_like_computer_monitor(title):
+                rejected += 1
+                continue
             price = None
             for key in ("buyNowPrice", "buyItNowPrice", "fixedPrice", "price", "salesPrice", "amount"):
                 price = parse_money(first(item, (key,)))
@@ -189,24 +239,24 @@ def tradera_results() -> dict[str, dict]:
                     break
             if price is None or price > MAX_PRICE:
                 continue
-            title = str(first(item, ("title", "heading", "name", "shortDescription"), "Tradera listing"))
             url = link_from(first(item, ("url", "itemUrl", "canonicalUrl", "shareUrl")), f"https://www.tradera.com/item/{item_id}")
             results[f"tradera:{item_id}"] = {"source": "Tradera", "id": f"tradera:{item_id}", "title": title, "price": price, "url": url}
         time.sleep(0.5)
+    log(f"Tradera rejected as non-monitor: {rejected}")
     return results
 
 
 def build_email_body(new_items: list[dict]) -> str:
-    shown = min(len(new_items), 12)
-    lines = [f"{len(new_items)} new display listings under {MAX_PRICE} SEK.", f"Showing first {shown}.", f"Checked: {datetime.now(TZ).strftime('%Y-%m-%d %H:%M %Z')}", ""]
-    for index, item in enumerate(new_items[:shown], 1):
-        title = str(item["title"])[:120]
+    lines = [
+        f"{len(new_items)} new computer monitor listings under {MAX_PRICE} SEK.",
+        "Showing all filtered matches.",
+        f"Checked: {datetime.now(TZ).strftime('%Y-%m-%d %H:%M %Z')}",
+        "",
+    ]
+    for index, item in enumerate(new_items, 1):
+        title = str(item["title"])[:140]
         lines += [f"{index}. [{item['source']}] {title}", f"   {item['price']} SEK", f"   {item['url']}", ""]
-    body = "\n".join(lines)
-    encoded = body.encode("utf-8")
-    if len(encoded) > 3000:
-        body = encoded[:3000].decode("utf-8", errors="ignore") + "\n\n[truncated]"
-    return body
+    return "\n".join(lines)
 
 
 def send_email(new_items: list[dict]) -> None:
@@ -216,7 +266,7 @@ def send_email(new_items: list[dict]) -> None:
     response = requests.post(
         f"https://ntfy.sh/{NTFY_TOPIC}",
         data=build_email_body(new_items).encode("utf-8"),
-        headers={**UA, "Authorization": f"Bearer {NTFY_TOKEN}", "Title": f"{len(new_items)} new display listings", "Email": EMAIL_TO, "Priority": "default"},
+        headers={**UA, "Authorization": f"Bearer {NTFY_TOKEN}", "Title": f"{len(new_items)} new monitor listings", "Email": EMAIL_TO, "Priority": "default"},
         timeout=25,
     )
     if response.status_code >= 400:
@@ -239,7 +289,7 @@ def main() -> None:
         seen.add(key)
     latest = build_latest_payload(all_items, new_items)
     save_state(seen, latest)
-    log(f"Matches: {latest['total_count']} total, {latest['new_count']} new")
+    log(f"Filtered monitor matches: {latest['total_count']} total, {latest['new_count']} new")
     if new_items:
         send_email(new_items)
 
