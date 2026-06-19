@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-06-19T13:27:00+02:00",
+  "updated_at": "2026-06-19T13:31:43+02:00",
   "seen": [
     "blocket:17784941",
     "blocket:18086299",
@@ -115,40 +115,11 @@
     "tradera:736941310"
   ],
   "latest_results": {
-    "checked_at": "2026-06-19T13:27:00+02:00",
-    "notification_id": "4842468004e96088",
+    "checked_at": "2026-06-19T13:31:43+02:00",
+    "notification_id": "41c119637280aa75",
     "max_price_sek": 500,
-    "total_count": 40,
-    "new_count": 4,
-    "items": [
-      {
-        "source": "Blocket",
-        "id": "blocket:22392455",
-        "title": "Monitor Robotic arbetsskor skyddsskor svart herr",
-        "price": 500,
-        "url": "https://www.blocket.se/recommerce/forsale/item/22392455"
-      },
-      {
-        "source": "Tradera",
-        "id": "tradera:720262282",
-        "title": "JOHN ERICSSONS MONITOR OCH DRABBNINGEN PÅ HAMPTON ROADS Hugo Hammar",
-        "price": 160,
-        "url": "http://www.tradera.com/item/341201/720262282/john-ericssons-monitor-och-drabbningen-pa-hampton-roads-hugo-hammar"
-      },
-      {
-        "source": "Tradera",
-        "id": "tradera:654873982",
-        "title": "MONITOR LIZARDS AS PETS Marvin Murkett and Ben Team 2015",
-        "price": 170,
-        "url": "http://www.tradera.com/item/111505/654873982/monitor-lizards-as-pets-marvin-murkett-and-ben-team-2015"
-      },
-      {
-        "source": "Tradera",
-        "id": "tradera:731367343",
-        "title": "Shinco SDP-1250 Portable DVD Player with 10.2\" TFT Monitor-circa 00s-2.615 Kg",
-        "price": 399,
-        "url": "http://www.tradera.com/item/170201/731367343/shinco-sdp-1250-portable-dvd-player-with-10-2-tft-monitor-circa-00s-2-615-kg"
-      }
-    ]
+    "total_count": 0,
+    "new_count": 0,
+    "items": []
   }
 }
