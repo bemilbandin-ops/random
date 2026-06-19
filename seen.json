@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-06-19T13:20:13+02:00",
+  "updated_at": "2026-06-19T13:23:07+02:00",
   "seen": [
     "blocket:17784941",
     "blocket:18086299",
@@ -65,6 +65,7 @@
     "tradera:728563525",
     "tradera:728668398",
     "tradera:728668914",
+    "tradera:728743990",
     "tradera:728892050",
     "tradera:729363755",
     "tradera:729541855",
@@ -91,8 +92,11 @@
     "tradera:733208966",
     "tradera:733364695",
     "tradera:733448254",
+    "tradera:733658466",
+    "tradera:733953101",
     "tradera:734195088",
     "tradera:734195191",
+    "tradera:735274130",
     "tradera:735463089",
     "tradera:735772804",
     "tradera:735887770",
@@ -107,361 +111,39 @@
     "tradera:736941310"
   ],
   "latest_results": {
-    "checked_at": "2026-06-19T13:20:13+02:00",
-    "notification_id": "dce7adc86a9afe79",
+    "checked_at": "2026-06-19T13:23:07+02:00",
+    "notification_id": "0154e0b7f3fac44b",
     "max_price_sek": 500,
-    "total_count": 104,
-    "new_count": 104,
+    "total_count": 106,
+    "new_count": 4,
     "items": [
       {
-        "source": "Blocket",
-        "id": "blocket:22538906",
-        "title": "Golvlampa flätad fot med tygskärm",
-        "price": 0,
-        "url": "https://www.blocket.se/recommerce/forsale/item/22538906"
+        "source": "Tradera",
+        "id": "tradera:735274130",
+        "title": "skärmskydd / screen protection",
+        "price": 30,
+        "url": "http://www.tradera.com/item/340821/735274130/skarmskydd-screen-protection"
       },
       {
-        "source": "Blocket",
-        "id": "blocket:18086299",
-        "title": "1080P HDMI Till AV Converter för PC Laptop HDTV DVD",
-        "price": 80,
-        "url": "https://www.blocket.se/recommerce/forsale/item/18086299"
+        "source": "Tradera",
+        "id": "tradera:733658466",
+        "title": "Ljudabsorbent / bordsskärm",
+        "price": 150,
+        "url": "http://www.tradera.com/item/160407/733658466/ljudabsorbent-bordsskarm"
       },
       {
-        "source": "Blocket",
-        "id": "blocket:17784941",
-        "title": "Väggfäste",
-        "price": 90,
-        "url": "https://www.blocket.se/recommerce/forsale/item/17784941"
-      },
-      {
-        "source": "Blocket",
-        "id": "blocket:23992473",
-        "title": "Vitt skrivbord",
-        "price": 95,
-        "url": "https://www.blocket.se/recommerce/forsale/item/23992473"
-      },
-      {
-        "source": "Blocket",
-        "id": "blocket:24062117",
-        "title": "IKEA Galant skrivbord 120x80 mm",
-        "price": 100,
-        "url": "https://www.blocket.se/recommerce/forsale/item/24062117"
-      },
-      {
-        "source": "Blocket",
-        "id": "blocket:22522983",
-        "title": "Lenovo D24f-10 bildskärm 24 tum",
-        "price": 100,
-        "url": "https://www.blocket.se/recommerce/forsale/item/22522983"
-      },
-      {
-        "source": "Blocket",
-        "id": "blocket:475715",
-        "title": "Dell 23″ TFT Skärm U2312HM Endast 195 kr!",
-        "price": 195,
-        "url": "https://www.blocket.se/recommerce/forsale/item/475715"
-      },
-      {
-        "source": "Blocket",
-        "id": "blocket:24177453",
-        "title": "Asus 22 tum skärm hdmi",
-        "price": 199,
-        "url": "https://www.blocket.se/recommerce/forsale/item/24177453"
-      },
-      {
-        "source": "Blocket",
-        "id": "blocket:18756470",
-        "title": "Dataskärm Emachines",
-        "price": 199,
-        "url": "https://www.blocket.se/recommerce/forsale/item/18756470"
-      },
-      {
-        "source": "Blocket",
-        "id": "blocket:24132116",
-        "title": "iPhone 17 Pro Max mobilskal UB Grip Magsafe Navy Blue",
-        "price": 199,
-        "url": "https://www.blocket.se/recommerce/forsale/item/24132116"
-      },
-      {
-        "source": "Blocket",
-        "id": "blocket:20750578",
-        "title": "Dataskärm 22tum ej Hdmi",
+        "source": "Tradera",
+        "id": "tradera:728743990",
+        "title": "Skärmfäste för skrivbord",
         "price": 200,
-        "url": "https://www.blocket.se/recommerce/forsale/item/20750578"
+        "url": "http://www.tradera.com/item/1000274/728743990/skarmfaste-for-skrivbord"
       },
       {
-        "source": "Blocket",
-        "id": "blocket:24126216",
-        "title": "Möbler och dataskärm",
-        "price": 200,
-        "url": "https://www.blocket.se/recommerce/forsale/item/24126216"
-      },
-      {
-        "source": "Blocket",
-        "id": "blocket:19630181",
-        "title": "Samsung dataskärm 24 tum",
-        "price": 200,
-        "url": "https://www.blocket.se/recommerce/forsale/item/19630181"
-      },
-      {
-        "source": "Blocket",
-        "id": "blocket:24180628",
-        "title": "Acer 24\" datorskärm 3D svart",
-        "price": 280,
-        "url": "https://www.blocket.se/recommerce/forsale/item/24180628"
-      },
-      {
-        "source": "Blocket",
-        "id": "blocket:20535269",
-        "title": "Dataskärm 24 tum x2st - LED - Benq",
-        "price": 299,
-        "url": "https://www.blocket.se/recommerce/forsale/item/20535269"
-      },
-      {
-        "source": "Blocket",
-        "id": "blocket:24152204",
-        "title": "24 TUM ACER LED SKÄRM. FULL HD. HDMI. NYSKICK.",
-        "price": 300,
-        "url": "https://www.blocket.se/recommerce/forsale/item/24152204"
-      },
-      {
-        "source": "Blocket",
-        "id": "blocket:24131228",
-        "title": "Asus All-in-One dator 19\"",
-        "price": 300,
-        "url": "https://www.blocket.se/recommerce/forsale/item/24131228"
-      },
-      {
-        "source": "Blocket",
-        "id": "blocket:24174418",
-        "title": "Äldre HP skärm",
+        "source": "Tradera",
+        "id": "tradera:733953101",
+        "title": "5 datorskärmar 22tums endast VGA ej Hdmi",
         "price": 350,
-        "url": "https://www.blocket.se/recommerce/forsale/item/24174418"
-      },
-      {
-        "source": "Blocket",
-        "id": "blocket:20787385",
-        "title": "2 X Dataskärm Philips",
-        "price": 390,
-        "url": "https://www.blocket.se/recommerce/forsale/item/20787385"
-      },
-      {
-        "source": "Blocket",
-        "id": "blocket:23735322",
-        "title": "Acer 24\" dataskärm",
-        "price": 400,
-        "url": "https://www.blocket.se/recommerce/forsale/item/23735322"
-      },
-      {
-        "source": "Blocket",
-        "id": "blocket:23910795",
-        "title": "Dataskärm",
-        "price": 400,
-        "url": "https://www.blocket.se/recommerce/forsale/item/23910795"
-      },
-      {
-        "source": "Blocket",
-        "id": "blocket:24176239",
-        "title": "Dell 24\" datorskärm P2412H",
-        "price": 400,
-        "url": "https://www.blocket.se/recommerce/forsale/item/24176239"
-      },
-      {
-        "source": "Blocket",
-        "id": "blocket:24176986",
-        "title": "AOC 24\" gamingskärm 144Hz FreeSync",
-        "price": 450,
-        "url": "https://www.blocket.se/recommerce/forsale/item/24176986"
-      },
-      {
-        "source": "Blocket",
-        "id": "blocket:18634948",
-        "title": "Dataskärm Philips 24\"",
-        "price": 450,
-        "url": "https://www.blocket.se/recommerce/forsale/item/18634948"
-      },
-      {
-        "source": "Blocket",
-        "id": "blocket:24177065",
-        "title": "Acer skärm 24 tum svart",
-        "price": 500,
-        "url": "https://www.blocket.se/recommerce/forsale/item/24177065"
-      },
-      {
-        "source": "Blocket",
-        "id": "blocket:23963546",
-        "title": "Bildskärm HP EliteDisplay E271i LED Backlit 27 tum",
-        "price": 500,
-        "url": "https://www.blocket.se/recommerce/forsale/item/23963546"
-      },
-      {
-        "source": "Blocket",
-        "id": "blocket:23771521",
-        "title": "dataskärm",
-        "price": 500,
-        "url": "https://www.blocket.se/recommerce/forsale/item/23771521"
-      },
-      {
-        "source": "Blocket",
-        "id": "blocket:23133200",
-        "title": "Dataskärmar",
-        "price": 500,
-        "url": "https://www.blocket.se/recommerce/forsale/item/23133200"
-      },
-      {
-        "source": "Blocket",
-        "id": "blocket:23716584",
-        "title": "dataskärmar samsung / HP",
-        "price": 500,
-        "url": "https://www.blocket.se/recommerce/forsale/item/23716584"
-      },
-      {
-        "source": "Blocket",
-        "id": "blocket:24180431",
-        "title": "Lampfot i keramik",
-        "price": 500,
-        "url": "https://www.blocket.se/recommerce/forsale/item/24180431"
-      },
-      {
-        "source": "Tradera",
-        "id": "tradera:594760411",
-        "title": "lego instrument panel 2x2 slope 45 vit dataskärm",
-        "price": 6,
-        "url": "http://www.tradera.com/item/340800/594760411/lego-instrument-panel-2x2-slope-45-vit-dataskarm"
-      },
-      {
-        "source": "Tradera",
-        "id": "tradera:559932490",
-        "title": "lego nytt 2x2 clip on 6064043 data skärm dataskärm 6064043",
-        "price": 6,
-        "url": "http://www.tradera.com/item/340800/559932490/lego-nytt-2x2-clip-on-6064043-data-skarm-dataskarm-6064043"
-      },
-      {
-        "source": "Tradera",
-        "id": "tradera:641348686",
-        "title": "lego ny vit 4195657 2x2 instrument panel dataskärm data skärm",
-        "price": 7,
-        "url": "http://www.tradera.com/item/340800/641348686/lego-ny-vit-4195657-2x2-instrument-panel-dataskarm-data-skarm"
-      },
-      {
-        "source": "Tradera",
-        "id": "tradera:629312462",
-        "title": "lego ny data skärm dataskärm tangentbord",
-        "price": 15,
-        "url": "http://www.tradera.com/item/340800/629312462/lego-ny-data-skarm-dataskarm-tangentbord"
-      },
-      {
-        "source": "Tradera",
-        "id": "tradera:657507658",
-        "title": "6 mini micro fiberduk rengöra mobilskärm",
-        "price": 21,
-        "url": "http://www.tradera.com/item/161209/657507658/6-mini-micro-fiberduk-rengora-mobilskarm"
-      },
-      {
-        "source": "Tradera",
-        "id": "tradera:733448254",
-        "title": "Bara du kan rädda mänskligheten, Terry Pratchett, Kartonnage",
-        "price": 25,
-        "url": "http://www.tradera.com/item/341612/733448254/bara-du-kan-radda-manskligheten-terry-pratchett-kartonnage"
-      },
-      {
-        "source": "Tradera",
-        "id": "tradera:542653073",
-        "title": "5 st rengöringsdukar (7,5 x 7,5 cm) Rengöringsduk i blandade färger",
-        "price": 29,
-        "url": "http://www.tradera.com/item/301772/542653073/5-st-rengoringsdukar-7-5-x-7-5-cm-rengoringsduk-i-blandade-farger"
-      },
-      {
-        "source": "Tradera",
-        "id": "tradera:727941001",
-        "title": "RIKOSCHETT - Ricochet / PC spel / NYTT inplastat <----",
-        "price": 36,
-        "url": "http://www.tradera.com/item/3011/727941001/rikoschett-ricochet-pc-spel-nytt-inplastat-"
-      },
-      {
-        "source": "Tradera",
-        "id": "tradera:490501019",
-        "title": "Trädagat, trumlad",
-        "price": 39,
-        "url": "http://www.tradera.com/item/240803/490501019/tradagat-trumlad"
-      },
-      {
-        "source": "Tradera",
-        "id": "tradera:710032674",
-        "title": "Hälsopraktika : för dig som är mitt i livet av Görel Kristina Näslund",
-        "price": 59,
-        "url": "http://www.tradera.com/item/341325/710032674/halsopraktika-for-dig-som-ar-mitt-i-livet-av-gorel-kristina-naslund"
-      },
-      {
-        "source": "Tradera",
-        "id": "tradera:507821605",
-        "title": "KURRAGÖMMA MED MUMINTROLLEN PC/MAC CD-ROM",
-        "price": 63,
-        "url": "http://www.tradera.com/item/3011/507821605/kurragomma-med-mumintrollen-pc-mac-cd-rom"
-      },
-      {
-        "source": "Tradera",
-        "id": "tradera:490502483",
-        "title": "Lavasten, armband 4mm runda pärlor",
-        "price": 69,
-        "url": "http://www.tradera.com/item/341830/490502483/lavasten-armband-4mm-runda-parlor"
-      },
-      {
-        "source": "Tradera",
-        "id": "tradera:736830775",
-        "title": "10-Pack Spel Finger Strumpur/Vantar | Komfort X Precision",
-        "price": 79,
-        "url": "http://www.tradera.com/item/3018/736830775/10-pack-spel-finger-strumpur-vantar-komfort-x-precision"
-      },
-      {
-        "source": "Tradera",
-        "id": "tradera:728668398",
-        "title": "[Paket] iPhone 11 - Svart Skal + 9H Härdat Glas Skärmskydd",
-        "price": 79,
-        "url": "http://www.tradera.com/item/301788/728668398/-paket-iphone-11-svart-skal-9h-hardat-glas-skarmskydd"
-      },
-      {
-        "source": "Tradera",
-        "id": "tradera:734195088",
-        "title": "[Paket] iPhone 13 Pro Max - Svart Skal + 9H Härdat Glas Skärmskydd",
-        "price": 79,
-        "url": "http://www.tradera.com/item/301788/734195088/-paket-iphone-13-pro-max-svart-skal-9h-hardat-glas-skarmskydd"
-      },
-      {
-        "source": "Tradera",
-        "id": "tradera:728892050",
-        "title": "[Paket] iPhone 14 - Svart Skal + 9H Härdat Glas Skärmskydd",
-        "price": 79,
-        "url": "http://www.tradera.com/item/301788/728892050/-paket-iphone-14-svart-skal-9h-hardat-glas-skarmskydd"
-      },
-      {
-        "source": "Tradera",
-        "id": "tradera:736557512",
-        "title": "[Paket] iPhone 14 Pro - Svart Skal + 9H Härdat Glas Skärmskydd",
-        "price": 79,
-        "url": "http://www.tradera.com/item/301788/736557512/-paket-iphone-14-pro-svart-skal-9h-hardat-glas-skarmskydd"
-      },
-      {
-        "source": "Tradera",
-        "id": "tradera:730249978",
-        "title": "[Paket] iPhone 14 Pro Max - Svart Skal + 9H Härdat Glas Skärmskydd",
-        "price": 79,
-        "url": "http://www.tradera.com/item/301788/730249978/-paket-iphone-14-pro-max-svart-skal-9h-hardat-glas-skarmskydd"
-      },
-      {
-        "source": "Tradera",
-        "id": "tradera:736557200",
-        "title": "[Paket] iPhone 15 - Svart Skal + 9H Härdat Glas Skärmskydd",
-        "price": 79,
-        "url": "http://www.tradera.com/item/301788/736557200/-paket-iphone-15-svart-skal-9h-hardat-glas-skarmskydd"
-      },
-      {
-        "source": "Tradera",
-        "id": "tradera:729363755",
-        "title": "[Paket] iPhone 16 Plus - Svart Skal + 9H Härdat Glas Skärmskydd",
-        "price": 79,
-        "url": "http://www.tradera.com/item/301788/729363755/-paket-iphone-16-plus-svart-skal-9h-hardat-glas-skarmskydd"
+        "url": "http://www.tradera.com/item/301824/733953101/5-datorskarmar-22tums-endast-vga-ej-hdmi"
       }
     ]
   }
