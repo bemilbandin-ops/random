@@ -33,7 +33,7 @@ jobs:
         env:
           FORCE_RUN: ${{ github.event_name == 'workflow_dispatch' && '1' || github.event_name == 'push' && '1' || '0' }}
           MAX_PRICE_SEK: "500"
-          ALERT_EMAIL: "beffhoe+idiotgpt@gmail.com"
+          ALERT_EMAIL: "chatgpt.idiot.stupid@gmail.com"
           NTFY_TOPIC: "display-deals-55r0v7m6k2q8ps"
           NTFY_TOKEN: ${{ secrets.NTFY_TOKEN }}
           TRADERA_APP_ID: ${{ secrets.TRADERA_APP_ID }}
