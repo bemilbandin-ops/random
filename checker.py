@@ -11,12 +11,15 @@ import requests
 
 TZ = ZoneInfo("Europe/Stockholm")
 MAX_PRICE = int(os.getenv("MAX_PRICE_SEK", "500"))
+EMAIL_TO = os.getenv("ALERT_EMAIL", "beffhoe+idiotgpt@gmail.com").strip()
+NTFY_TOPIC = os.getenv("NTFY_TOPIC", "display-deals-55r0v7m6k2q8ps").strip()
+NTFY_TOKEN = os.getenv("NTFY_TOKEN", "").strip()
 TRADERA_APP_ID = os.getenv("TRADERA_APP_ID", "").strip()
 TRADERA_APP_KEY = os.getenv("TRADERA_APP_KEY", "").strip()
 FORCE_RUN = os.getenv("FORCE_RUN", "") == "1"
 STATE_PATH = Path("seen.json")
 QUERIES = ["datorskärm", "dataskärm", "bildskärm", "skärm", "pc skärm", "gaming skärm"]
-UA = {"User-Agent": "display-listing-checker/1.3"}
+UA = {"User-Agent": "display-listing-checker/1.4"}
 
 
 def log(message: str) -> None:
@@ -38,33 +41,14 @@ def load_seen() -> set[str]:
 
 
 def save_state(seen: set[str], latest: dict) -> None:
-    STATE_PATH.write_text(
-        json.dumps(
-            {
-                "updated_at": datetime.now(TZ).isoformat(timespec="seconds"),
-                "seen": sorted(seen),
-                "latest_results": latest,
-            },
-            ensure_ascii=False,
-            indent=2,
-        )
-        + "\n",
-        encoding="utf-8",
-    )
+    STATE_PATH.write_text(json.dumps({"updated_at": datetime.now(TZ).isoformat(timespec="seconds"), "seen": sorted(seen), "latest_results": latest}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
 def build_latest_payload(all_items: dict[str, dict], new_items: list[dict]) -> dict:
     checked_at = datetime.now(TZ).isoformat(timespec="seconds")
     new_ids = sorted(item["id"] for item in new_items)
     digest = hashlib.sha256((checked_at + "|" + "|".join(new_ids)).encode("utf-8")).hexdigest()[:16]
-    return {
-        "checked_at": checked_at,
-        "notification_id": digest,
-        "max_price_sek": MAX_PRICE,
-        "total_count": len(all_items),
-        "new_count": len(new_items),
-        "items": new_items[:50],
-    }
+    return {"checked_at": checked_at, "notification_id": digest, "max_price_sek": MAX_PRICE, "total_count": len(all_items), "new_count": len(new_items), "items": new_items[:50]}
 
 
 def parse_money(value):
@@ -212,6 +196,34 @@ def tradera_results() -> dict[str, dict]:
     return results
 
 
+def build_email_body(new_items: list[dict]) -> str:
+    shown = min(len(new_items), 12)
+    lines = [f"{len(new_items)} new display listings under {MAX_PRICE} SEK.", f"Showing first {shown}.", f"Checked: {datetime.now(TZ).strftime('%Y-%m-%d %H:%M %Z')}", ""]
+    for index, item in enumerate(new_items[:shown], 1):
+        title = str(item["title"])[:120]
+        lines += [f"{index}. [{item['source']}] {title}", f"   {item['price']} SEK", f"   {item['url']}", ""]
+    body = "\n".join(lines)
+    encoded = body.encode("utf-8")
+    if len(encoded) > 3000:
+        body = encoded[:3000].decode("utf-8", errors="ignore") + "\n\n[truncated]"
+    return body
+
+
+def send_email(new_items: list[dict]) -> None:
+    if not NTFY_TOKEN:
+        log("NTFY_TOKEN missing; cannot send email.")
+        return
+    response = requests.post(
+        f"https://ntfy.sh/{NTFY_TOPIC}",
+        data=build_email_body(new_items).encode("utf-8"),
+        headers={**UA, "Authorization": f"Bearer {NTFY_TOKEN}", "Title": f"{len(new_items)} new display listings", "Email": EMAIL_TO, "Priority": "default"},
+        timeout=25,
+    )
+    if response.status_code >= 400:
+        raise RuntimeError(f"ntfy email failed HTTP {response.status_code}: {response.text[:500]}")
+    log("Email request accepted by ntfy.")
+
+
 def main() -> None:
     now = datetime.now(TZ)
     if not FORCE_RUN and now.hour not in (9, 21):
@@ -227,7 +239,9 @@ def main() -> None:
         seen.add(key)
     latest = build_latest_payload(all_items, new_items)
     save_state(seen, latest)
-    log(f"Matches: {latest['total_count']} total, {latest['new_count']} new. Latest results stored inside seen.json")
+    log(f"Matches: {latest['total_count']} total, {latest['new_count']} new")
+    if new_items:
+        send_email(new_items)
 
 
 if __name__ == "__main__":
