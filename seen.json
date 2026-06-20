@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-06-19T13:39:51+02:00",
+  "updated_at": "2026-06-20T21:44:32+02:00",
   "seen": [
     "blocket:17784941",
     "blocket:18086299",
@@ -122,8 +122,8 @@
     "tradera:736941310"
   ],
   "latest_results": {
-    "checked_at": "2026-06-19T13:39:51+02:00",
-    "notification_id": "4723b470ddae0b51",
+    "checked_at": "2026-06-20T21:44:32+02:00",
+    "notification_id": "ab350cd6d0f18e78",
     "max_price_sek": 500,
     "total_count": 7,
     "new_count": 0,
