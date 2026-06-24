@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-06-20T21:44:32+02:00",
+  "updated_at": "2026-06-24T21:52:48+02:00",
   "seen": [
     "blocket:17784941",
     "blocket:18086299",
@@ -122,10 +122,10 @@
     "tradera:736941310"
   ],
   "latest_results": {
-    "checked_at": "2026-06-20T21:44:32+02:00",
-    "notification_id": "ab350cd6d0f18e78",
+    "checked_at": "2026-06-24T21:52:48+02:00",
+    "notification_id": "e0fabd72529d671b",
     "max_price_sek": 500,
-    "total_count": 7,
+    "total_count": 6,
     "new_count": 0,
     "items": [
       {
@@ -162,13 +162,6 @@
         "title": "Skärm IBM ITXG74E / 25L7600 LCD/TFT 14,1\" XGA",
         "price": 350,
         "url": "http://www.tradera.com/item/301824/299581495/skarm-ibm-itxg74e-25l7600-lcd-tft-14-1-xga"
-      },
-      {
-        "source": "Tradera",
-        "id": "tradera:299581473",
-        "title": "Skärm LG LP141X1 LCD/TFT 14,1\" XGA",
-        "price": 350,
-        "url": "http://www.tradera.com/item/301824/299581473/skarm-lg-lp141x1-lcd-tft-14-1-xga"
       },
       {
         "source": "Tradera",
